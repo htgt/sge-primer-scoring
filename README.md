@@ -3,6 +3,8 @@
 ## Description
 Tool to score SGE primers based on output from [Exonerate iPCRess](https://www.ebi.ac.uk/about/vertebrate-genomics/software/ipcress-manual).
 
+For each primer pair, occurrences of primer A and B in PCR products with each number of mismatches are counted. The number of PCR products with each total number of mismatches is also counted.
+
 ## Badges
 On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
@@ -18,7 +20,7 @@ pip3 install -r requirements.txt
 ```
 
 ## Usage
-An example input file can be found in the examples folder.
+An example input file and TSV of the formatted mismatches can be found in the examples folder.
 
 ## Support
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
@@ -32,6 +34,8 @@ Linting:
 
 Testing:
 `python3 -m unittest`
+
+Tests are written using the Arrange Act Assert pattern.
 
 ## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.
