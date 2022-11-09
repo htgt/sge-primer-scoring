@@ -15,7 +15,6 @@ test:
     - openstack-autoscale
   script:
     - pip3 install -r requirements.txt
-    - pip3 install pandas
     - python3 -m unittest
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event' && $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == $CI_DEFAULT_BRANCH
