@@ -60,7 +60,6 @@ class TestScoring(TestCase):
     def test_save_mismatches_success(self, mock_mismatches_to_df):
         # arrange
         mock_mismatches_to_df.return_value = self.df
-
         fake_output_file = StringIO()
         expected = (
             "\t\t0\t1\t2\t3\t4\tWGE format\n"

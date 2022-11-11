@@ -16,6 +16,7 @@ class Scoring:
             'p2_mismatches', 'description']
         mismatch_counts = defaultdict(
             lambda: {str(i): 0 for i in range(2 * mismatches + 1)})
+
         with open(ipcress_file, newline='') as ipcress_fh:
             reader = csv.DictReader(
                 ipcress_fh, fieldnames=ipcress_fields, delimiter=' ')
@@ -29,6 +30,7 @@ class Scoring:
                 total_mismatches = str(
                     int(row['p1_mismatches']) + int(row['p2_mismatches']))
                 mismatch_counts[(row['name'], 'Total')][total_mismatches] += 1
+
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
         df.sort_index(inplace=True)
         df['WGE format'] = df.apply(lambda row: row.to_dict(), axis=1)
