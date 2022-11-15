@@ -11,9 +11,11 @@ class Scoring:
     @staticmethod
     def mismatches_to_df(ipcress_file, mismatches):
         ipcress_fields = [
-            'ipcress', 'chr', 'name', 'length', 'p1',
-            'p1_coord', 'p1_mismatches', 'p2', 'p2_coord',
-            'p2_mismatches', 'description']
+            'ipcress', 'seq', 'id', 'length',
+            'primer_5', 'pos_5', 'mismatch_5',
+            'primer_3', 'pos_3', 'mismatch_3',
+            'description'
+        ]
         mismatch_counts = defaultdict(
             lambda: {str(i): 0 for i in range(2 * mismatches + 1)})
 
@@ -24,12 +26,12 @@ class Scoring:
                 if row['ipcress'] == '--':
                     break
                 mismatch_counts[(
-                    row['name'], row['p1'])][row['p1_mismatches']] += 1
+                    row['id'], row['primer_5'])][row['mismatch_5']] += 1
                 mismatch_counts[(
-                    row['name'], row['p2'])][row['p2_mismatches']] += 1
+                    row['id'], row['primer_3'])][row['mismatch_3']] += 1
                 total_mismatches = str(
-                    int(row['p1_mismatches']) + int(row['p2_mismatches']))
-                mismatch_counts[(row['name'], 'Total')][total_mismatches] += 1
+                    int(row['mismatch_5']) + int(row['mismatch_3']))
+                mismatch_counts[(row['id'], 'Total')][total_mismatches] += 1
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
         df.sort_index(inplace=True)
