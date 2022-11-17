@@ -34,7 +34,7 @@ class Scoring:
                 mismatch_counts[(row['id'], 'Total')][total_mismatches] += 1
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
-        df.sort_index(inplace=True) # order A, B, Total
+        df.sort_index(inplace=True)  # order A, B, Total
         df['WGE format'] = df.apply(lambda row: row.to_dict(), axis=1)
         return df
 
