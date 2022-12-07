@@ -2,6 +2,7 @@ import csv
 from collections import defaultdict
 
 import pandas as pd
+import numpy as np
 
 
 class Scoring:
@@ -34,6 +35,7 @@ class Scoring:
                 mismatch_counts[(row['id'], 'Total')][total_mismatches] += 1
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
+        df.index.set_names('Primer pair', level=0, inplace=True)
         df.sort_index(inplace=True)  # order A, B, Total
         df['WGE format'] = df.apply(lambda row: row.to_dict(), axis=1)
         return df
@@ -41,6 +43,32 @@ class Scoring:
     @property
     def mismatch_df(self):
         return self._mismatch_df
+
+    def add_scores_to_df(self):
+        df = self.mismatch_df
+        df['Score'] = df.apply(self.score_mismatches, axis=1)
+        df['Sum'] = df.groupby('Primer pair')['Score'].transform('sum')
+        df.sort_values(['Sum', 'Primer pair'], inplace=True)
+        df.drop('Sum', axis=1, inplace=True)
+
+    @staticmethod
+    def score_mismatches(row):
+        if row.name[1] != 'Total':
+            return np.nan
+        weights = {str(i): 10 ** (8 - i) for i in range(2, 9)}
+        weights['0'] = 10 ** 10  # fail
+        weights['1'] = 10 ** 10  # fail
+        score = 0
+        for col, val in row.items():
+            if col not in weights.keys():
+                continue
+            if col == '0':
+                if val == 0:
+                    print('No match found for ' + row.name[0])
+                    continue
+                val -= 1  # take away actual match
+            score += val * weights[col]
+        return score
 
     def save_mismatches(self, output_file):
         self.mismatch_df.to_csv(output_file, sep='\t')

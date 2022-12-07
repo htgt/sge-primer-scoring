@@ -3,7 +3,7 @@
 ## Description
 Tool to score SGE primers based on output from [Exonerate iPCRess](https://www.ebi.ac.uk/about/vertebrate-genomics/software/ipcress-manual).
 
-For each primer pair, occurrences of primer A and B in PCR products with each number of mismatches are counted. The number of PCR products with each total number of mismatches is also counted.
+For each primer pair, occurrences of primer A and B in PCR products with each number of mismatches are counted. The number of PCR products with each total number of mismatches is also counted. The total counts are then used to score each primer pair, with a penalty added for each hit. The penalty increases exponentially as the number of mismatches decreases from 8. Hits with 0 or 1 mismatches are given the highest penalty, although the first hit with 0 mismatches is exempt as it should represent the on-target hit. A warning is printed if this is not found. Primer pairs are ranked by score, with the lowest score showing highest specificity.
 
 ## Badges
 On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
@@ -20,7 +20,7 @@ pip3 install -r requirements.txt
 ```
 
 ## Usage
-An example input file and TSV of the formatted mismatches can be found in the examples folder.
+An example input and output file can be found in the examples folder.
 
 ## Support
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
