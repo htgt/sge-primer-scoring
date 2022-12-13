@@ -20,7 +20,22 @@ pip3 install -r requirements.txt
 ```
 
 ## Usage
-An example input and output file can be found in the examples folder.
+```
+usage: SGE Primer Scoring [-h] [--version] ipcress_file mismatch output_tsv
+
+Tool to score primer pairs using output from Exonerate iPCRess
+
+positional arguments:
+  ipcress_file  File containing output from Exonerate iPCRess
+  mismatch      Mismatch number used for Exonerate iPCRess
+  output_tsv    Name for output TSV file
+
+optional arguments:
+  -h, --help    show this help message and exit
+  --version     show program's version number and exit
+```
+
+Example command: ```./score_primers.py examples/example_input.txt 4 examples/example_output.tsv```
 
 ## Support
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
