@@ -1,4 +1,3 @@
-import unittest
 from unittest.mock import patch
 from io import StringIO
 
@@ -86,7 +85,7 @@ class TestScoring(TestCase):
         pd.testing.assert_frame_equal(actual, expected)
 
     @patch('scoring.Scoring.mismatches_to_df')
-    def test_add_scores_to_df_adds_scores(self, mock_mismatches_to_df):
+    def check_score_df(self, mock_mismatches_to_df, check_like):
         # arrange
         mock_mismatches_to_df.return_value = self.df
         scores = [np.nan, np.nan, 110000, np.nan, np.nan, 100000]
@@ -99,23 +98,13 @@ class TestScoring(TestCase):
         actual = scoring.mismatch_df
 
         # assert
-        pd.testing.assert_frame_equal(actual, expected, check_like=True)
+        pd.testing.assert_frame_equal(actual, expected, check_like=check_like)
 
-    @patch('scoring.Scoring.mismatches_to_df')
-    def test_add_scores_to_df_orders_by_score(self, mock_mismatches_to_df):
-        # arrange
-        mock_mismatches_to_df.return_value = self.df
-        scores = [np.nan, np.nan, 110000, np.nan, np.nan, 100000]
-        expected = self.score_df
+    def test_add_scores_to_df_adds_scores(self):
+        self.check_score_df(check_like=True)
 
-        # act
-        scoring = Scoring('/test_input.txt', 2)
-        with patch.object(pd.DataFrame, 'apply', return_value=scores):
-            scoring.add_scores_to_df()
-        actual = scoring.mismatch_df
-
-        # assert
-        pd.testing.assert_frame_equal(actual, expected)
+    def test_add_scores_to_df_orders_by_score(self):
+        self.check_score_df(check_like=False)
 
     def test_score_mismatches_returns_score_for_total_row(self):
         # arrange
