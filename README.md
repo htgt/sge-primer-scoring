@@ -21,7 +21,7 @@ pip3 install -r requirements.txt
 
 ## Usage
 ```
-usage: SGE Primer Scoring [-h] [--version] ipcress_file mismatch output_tsv
+usage: score_primers.py [-h] [--version] ipcress_file mismatch output_tsv
 
 Tool to score primer pairs using output from Exonerate iPCRess
 
@@ -36,6 +36,8 @@ optional arguments:
 ```
 
 Example command: ```./score_primers.py examples/example_input.txt 4 examples/example_output.tsv```
+
+The mismatch number provided dictates the number of mismatch columns in the output TSV, so please use the same value as used with iPCRess or results could be misleading. The mismatch number used with iPCRess affects the score, so bear this in mind if comparing results.
 
 ## Support
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
