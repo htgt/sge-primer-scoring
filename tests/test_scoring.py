@@ -87,8 +87,7 @@ class TestScoring(TestCase):
 
     def test_mismatches_to_df_invalid_file_fail(self):
         # arrange
-        file_contents = 'invalid'
-        self.fs.create_file('/invalid_input.txt', contents=file_contents)
+        self.fs.create_file('/invalid_input.txt', contents='invalid')
         expected = '/invalid_input.txt: Invalid file format'
 
         # act
