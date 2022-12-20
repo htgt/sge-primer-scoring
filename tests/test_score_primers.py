@@ -96,7 +96,7 @@ class TestScorePrimers(TestCase):
     def test_new_file_path_new_dir_path_fail(self):
         # arrange
         test_arg = 'new_dir/'
-        expected = 'Directory provided rather than filename: new_dir/'
+        expected = 'Directory provided rather than file path: new_dir/'
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:
@@ -108,7 +108,7 @@ class TestScorePrimers(TestCase):
     def test_new_file_path_existing_dir_path_fail(self):
         # arrange
         test_arg = 'existing_dir'
-        expected = 'Directory provided rather than filename: existing_dir'
+        expected = 'Directory provided rather than file path: existing_dir'
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:
@@ -120,7 +120,7 @@ class TestScorePrimers(TestCase):
     def test_new_file_path_existing_file_path_fail(self):
         # arrange
         test_arg = 'empty_file.txt'
-        expected = 'Filename already exists: empty_file.txt'
+        expected = 'File already exists: empty_file.txt'
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:

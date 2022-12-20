@@ -23,9 +23,9 @@ def positive_int(arg):
 def new_file_path(arg):
     if arg.endswith('/') or path.isdir(arg):
         raise argparse.ArgumentTypeError(
-            f'Directory provided rather than filename: {arg}')
+            f'Directory provided rather than file path: {arg}')
     if path.isfile(arg):
-        raise argparse.ArgumentTypeError(f'Filename already exists: {arg}')
+        raise argparse.ArgumentTypeError(f'File already exists: {arg}')
     return arg
 
 
@@ -46,7 +46,7 @@ def parse_arguments():
         type=positive_int)
     parser.add_argument(
         'output_tsv',
-        help='Name for output TSV file',
+        help='Path for output TSV file',
         type=new_file_path)
     parser.add_argument(
         '--version',
