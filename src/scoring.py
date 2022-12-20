@@ -30,11 +30,11 @@ class Scoring:
             for line in ipcress_fh:
                 if line == '-- completed ipcress analysis\n':
                     break
-                match = re.fullmatch(regex, line)
-                if not match:
+                valid_line = re.fullmatch(regex, line)
+                if not valid_line:
                     raise ScoringError(f'{ipcress_file}: Invalid file format')
                 exp_id, primer_5, mismatch_5, primer_3, mismatch_3 = (
-                    match.groups())
+                    valid_line.groups())
                 total_mismatches = str(int(mismatch_5) + int(mismatch_3))
                 try:
                     mismatch_counts[(exp_id, primer_5)][mismatch_5] += 1
