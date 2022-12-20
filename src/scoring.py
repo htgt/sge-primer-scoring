@@ -1,8 +1,13 @@
-import csv
 from collections import defaultdict
+import re
+from pathlib import Path
 
 import pandas as pd
 import numpy as np
+
+
+class ScoringError(Exception):
+    pass
 
 
 class Scoring:
@@ -11,34 +16,45 @@ class Scoring:
 
     @staticmethod
     def mismatches_to_df(ipcress_file, mismatches):
-        ipcress_fields = [
-            'ipcress', 'seq', 'id', 'length',
-            'primer_5', 'pos_5', 'mismatch_5',
-            'primer_3', 'pos_3', 'mismatch_3',
-            'description'
-        ]
         mismatch_counts = defaultdict(
             lambda: {str(i): 0 for i in range(2 * mismatches + 1)})
 
         with open(ipcress_file, newline='') as ipcress_fh:
-            reader = csv.DictReader(
-                ipcress_fh, fieldnames=ipcress_fields, delimiter=' ')
-            for row in reader:
-                if row['ipcress'] == '--':
+            for line in ipcress_fh:
+                if line == '-- completed ipcress analysis\n':
                     break
-                mismatch_counts[(
-                    row['id'], row['primer_5'])][row['mismatch_5']] += 1
-                mismatch_counts[(
-                    row['id'], row['primer_3'])][row['mismatch_3']] += 1
-                total_mismatches = str(
-                    int(row['mismatch_5']) + int(row['mismatch_3']))
-                mismatch_counts[(row['id'], 'Total')][total_mismatches] += 1
+                exp_id, primer_5, mismatch_5, primer_3, mismatch_3 = (
+                    Scoring._parse_ipcress_line(line, ipcress_file))
+                total_mismatches = str(int(mismatch_5) + int(mismatch_3))
+                try:
+                    mismatch_counts[(exp_id, primer_5)][mismatch_5] += 1
+                    mismatch_counts[(exp_id, primer_3)][mismatch_3] += 1
+                    mismatch_counts[(exp_id, 'Total')][total_mismatches] += 1
+                except KeyError:
+                    raise ScoringError(
+                        f'Mismatch number too low: {mismatches}')
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
+        if df.empty:
+            raise ScoringError(f'{ipcress_file}: No data in file')
         df.index.set_names('Primer pair', level=0, inplace=True)
         df.sort_index(inplace=True)  # order A, B, Total
         df['WGE format'] = df.apply(lambda row: row.to_dict(), axis=1)
         return df
+
+    @staticmethod
+    def _parse_ipcress_line(line, ipcress_file):
+        regex = (
+            r'ipcress: \S+ '  # ipcress: 11:filter(unmasked)
+            r'(\S+) \d+ '  # SMARCA4_exon24_1 204
+            r'([A|B]) \d+ (\d+) '  # A 3231378 4
+            r'([A|B]) \d+ (\d+) '  # A 3231564 4
+            r'[a-zAB_]+\n'  # single_A
+        )
+        valid_line = re.fullmatch(regex, line)
+        if not valid_line:
+            raise ScoringError(f'{ipcress_file}: Invalid file format')
+        return valid_line.groups()
 
     @property
     def mismatch_df(self):
@@ -64,11 +80,12 @@ class Scoring:
                 continue
             if col == '0':
                 if val == 0:
-                    print('No match found for ' + row.name[0])
-                    continue
-                val -= 1  # take away actual match
+                    raise ScoringError(
+                        f'No on-target hit found for {row.name[0]}')
+                val -= 1  # take away on-target hit
             score += val * weights[col]
         return score
 
     def save_mismatches(self, output_file):
+        Path(output_file).parent.mkdir(exist_ok=True, parents=True)
         self.mismatch_df.to_csv(output_file, sep='\t')
