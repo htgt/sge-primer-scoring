@@ -5,7 +5,9 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-from utils.exceptions import ScoringError
+
+class ScoringError(Exception):
+    pass
 
 
 class Scoring:

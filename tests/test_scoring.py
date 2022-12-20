@@ -5,8 +5,7 @@ import pandas as pd
 import numpy as np
 from pyfakefs.fake_filesystem_unittest import TestCase
 
-from scoring import Scoring
-from utils.exceptions import ScoringError
+from scoring import Scoring, ScoringError
 
 
 class TestScoring(TestCase):
