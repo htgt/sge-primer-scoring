@@ -16,13 +16,6 @@ class Scoring:
 
     @staticmethod
     def mismatches_to_df(ipcress_file, mismatches):
-        regex = (
-            r'ipcress: \S+ '  # ipcress: 11:filter(unmasked)
-            r'(\S+) \d+ '  # SMARCA4_exon24_1 204
-            r'([A|B]) \d+ (\d+) '  # A 3231378 4
-            r'([A|B]) \d+ (\d+) '  # A 3231564 4
-            r'[a-zAB_]+\n'  # single_A
-        )
         mismatch_counts = defaultdict(
             lambda: {str(i): 0 for i in range(2 * mismatches + 1)})
 
@@ -30,11 +23,8 @@ class Scoring:
             for line in ipcress_fh:
                 if line == '-- completed ipcress analysis\n':
                     break
-                valid_line = re.fullmatch(regex, line)
-                if not valid_line:
-                    raise ScoringError(f'{ipcress_file}: Invalid file format')
                 exp_id, primer_5, mismatch_5, primer_3, mismatch_3 = (
-                    valid_line.groups())
+                    Scoring._parse_ipcress_line(line, ipcress_file))
                 total_mismatches = str(int(mismatch_5) + int(mismatch_3))
                 try:
                     mismatch_counts[(exp_id, primer_5)][mismatch_5] += 1
@@ -51,6 +41,20 @@ class Scoring:
         df.sort_index(inplace=True)  # order A, B, Total
         df['WGE format'] = df.apply(lambda row: row.to_dict(), axis=1)
         return df
+
+    @staticmethod
+    def _parse_ipcress_line(line, ipcress_file):
+        regex = (
+            r'ipcress: \S+ '  # ipcress: 11:filter(unmasked)
+            r'(\S+) \d+ '  # SMARCA4_exon24_1 204
+            r'([A|B]) \d+ (\d+) '  # A 3231378 4
+            r'([A|B]) \d+ (\d+) '  # A 3231564 4
+            r'[a-zAB_]+\n'  # single_A
+        )
+        valid_line = re.fullmatch(regex, line)
+        if not valid_line:
+            raise ScoringError(f'{ipcress_file}: Invalid file format')
+        return valid_line.groups()
 
     @property
     def mismatch_df(self):
