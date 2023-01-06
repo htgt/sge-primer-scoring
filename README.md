@@ -21,18 +21,22 @@ pip3 install -r requirements.txt
 
 ## Usage
 ```
-usage: score_primers.py [-h] [--version] ipcress_file mismatch output_tsv
+usage: score_primers.py [-h] [--targeton_csv TARGETON_CSV] [--version]
+                        ipcress_file mismatch output_tsv
 
 Tool to score primer pairs using output from Exonerate iPCRess
 
 positional arguments:
-  ipcress_file  File containing output from Exonerate iPCRess
-  mismatch      Mismatch number used for Exonerate iPCRess
-  output_tsv    Path for output TSV file
+  ipcress_file          File containing output from Exonerate iPCRess
+  mismatch              Mismatch number used for Exonerate iPCRess
+  output_tsv            Path for output TSV file
 
 optional arguments:
-  -h, --help    show this help message and exit
-  --version     show program's version number and exit
+  -h, --help            show this help message and exit
+  --targeton_csv TARGETON_CSV
+                        CSV of primer pairs and corresponding targetons- adds
+                        targeton column to output
+  --version             show program's version number and exit
 ```
 
 Example command: ```./score_primers.py examples/example_input.txt 4 examples/example_output.tsv```
