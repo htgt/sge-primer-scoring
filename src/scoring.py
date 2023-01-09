@@ -90,7 +90,7 @@ class Scoring:
         if self._csv:
             df.sort_values(['Targeton', 'Sum'], inplace=True)
         else:
-            df.sort_values(['Sum', 'Primer pair'], inplace=True)
+            df.sort_values(['Sum'], inplace=True)
         df.drop('Sum', axis=1, inplace=True)
 
     @staticmethod
