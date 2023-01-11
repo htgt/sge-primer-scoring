@@ -56,7 +56,7 @@ def parse_arguments():
     parser.add_argument(
         '--version',
         action='version',
-        version='%(prog)s 0.0')
+        version='%(prog)s 0.0.0')
     return parser.parse_args()
 
 
@@ -65,6 +65,7 @@ def main():
     scoring = Scoring(args.ipcress_file, args.mismatch, args.targeton_csv)
     scoring.add_scores_to_df()
     scoring.save_mismatches(args.output_tsv)
+    print(f'Scoring complete! File saved to {args.output_tsv}')
 
 
 if __name__ == '__main__':
