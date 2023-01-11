@@ -128,7 +128,7 @@ class TestScoring(TestCase):
 
     def test_mismatches_to_df_low_mismatch_fail(self):
         # arrange
-        expected = 'Mismatch number too low: 1'
+        expected = 'Mismatch number too low for ipcress file: 1'
 
         # act
         with self.assertRaises(ScoringError) as cm:

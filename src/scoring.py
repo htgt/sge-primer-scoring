@@ -33,8 +33,8 @@ class Scoring:
                     mismatch_counts[(exp_id, primer_3)][mismatch_3] += 1
                     mismatch_counts[(exp_id, 'Total')][total_mismatches] += 1
                 except KeyError:
-                    raise ScoringError(
-                        f'Mismatch number too low for ipcress file: {mismatches}')
+                    raise ScoringError('Mismatch number too low for '
+                                       f'ipcress file: {mismatches}')
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
         if df.empty:
