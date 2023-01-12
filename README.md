@@ -3,7 +3,7 @@
 ## Description
 Tool to score SGE primers based on output from [Exonerate iPCRess](https://www.ebi.ac.uk/about/vertebrate-genomics/software/ipcress-manual).
 
-For each primer pair, occurrences of primer A and B in PCR products with each number of mismatches are counted. The number of PCR products with each total number of mismatches is also counted. The total counts are then used to score each primer pair, with a penalty added for each hit. The penalty increases exponentially as the number of mismatches decreases from 8. Hits with 0 or 1 mismatches are given the highest penalty, although the first hit with 0 mismatches is exempt as it should represent the on-target hit. An error is raised if this is not found. Primer pairs are ranked by score, with the lowest score showing highest specificity.
+For each primer pair, occurrences of primer A and B in PCR products with each number of mismatches are counted. The number of PCR products with each total number of mismatches is also counted. The total counts are then used to score each primer pair, with a penalty added for each hit. The penalty increases exponentially as the number of mismatches decreases from 8. Hits with 0 or 1 mismatches are given the highest penalty, although the first hit with 0 mismatches is exempt as it should represent the on-target hit. An error is raised if this is not found. Primer pairs are ranked by score, individually for each targeton if a CSV mapping targetons and primer pairs is provided. The lowest score shows highest specificity.
 
 ## Badges
 On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
@@ -21,18 +21,22 @@ pip3 install -r requirements.txt
 
 ## Usage
 ```
-usage: score_primers.py [-h] [--version] ipcress_file mismatch output_tsv
+usage: score_primers.py [-h] [--targeton_csv TARGETON_CSV] [--version]
+                        ipcress_file mismatch output_tsv
 
 Tool to score primer pairs using output from Exonerate iPCRess
 
 positional arguments:
-  ipcress_file  File containing output from Exonerate iPCRess
-  mismatch      Mismatch number used for Exonerate iPCRess
-  output_tsv    Path for output TSV file
+  ipcress_file          File containing output from Exonerate iPCRess
+  mismatch              Mismatch number used for Exonerate iPCRess
+  output_tsv            Path for output TSV file
 
 optional arguments:
-  -h, --help    show this help message and exit
-  --version     show program's version number and exit
+  -h, --help            show this help message and exit
+  --targeton_csv TARGETON_CSV
+                        CSV of primer pairs and corresponding targetons- adds
+                        targeton column to output
+  --version             show program's version number and exit
 ```
 
 Example command: ```./score_primers.py examples/example_input.txt 4 examples/example_output.tsv```
@@ -41,16 +45,27 @@ The mismatch number provided dictates the number of mismatch columns in the outp
 
 Parent directories in the output path are created if required.
 
+Example command with targeton CSV (to be used if looking at multiple targetons):  
+```./score_primers.py examples/example_input.txt 4 example_targeton_output.tsv --targeton_csv examples/example_targetons.csv```  
+
+CSV format:
+```
+SMARCA4_exon24_1,SMARCA4_exon24
+SMARCA4_exon24_2,SMARCA4_exon24
+BRCA1_exon1_1,BRCA1_exon1
+```
+
 **Raises:**
-- ArgumentTypeError if input file does not exist
-- ArgumentTypeError if input file is empty
+- ArgumentTypeError if an input file does not exist
+- ArgumentTypeError if an input file is empty
 - ArgumentTypeError if mismatch number is negative
 - ArgumentTypeError if output file is a directory
 - ArgumentTypeError if output file already exists
-- ScoringError if input file format is invalid
-- ScoringError if mismatch number is not negative but still too low for input file provided
-- ScoringError if there is no data in the input file
-- ScoringError if no on-target hit is found in the input file
+- ScoringError if an input file format is invalid
+- ScoringError if mismatch number is not negative but still too low for ipcress file provided
+- ScoringError if there is no data in the ipcress file
+- ScoringError if no on-target hit is found in the ipcress file
+- ScoringError if a primer pair in the targeton csv appears again with a different targeton 
 
 ## Support
 Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
