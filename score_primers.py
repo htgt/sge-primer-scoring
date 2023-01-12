@@ -49,6 +49,11 @@ def parse_arguments():
         help='Path for output TSV file',
         type=new_file_path)
     parser.add_argument(
+        '--targeton_csv',
+        help=('CSV of primer pairs and corresponding targetons'
+              '- adds targeton column to output'),
+        type=non_empty_file)
+    parser.add_argument(
         '--version',
         action='version',
         version='%(prog)s 0.0')
@@ -57,7 +62,7 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    scoring = Scoring(args.ipcress_file, args.mismatch)
+    scoring = Scoring(args.ipcress_file, args.mismatch, args.targeton_csv)
     scoring.add_scores_to_df()
     scoring.save_mismatches(args.output_tsv)
 

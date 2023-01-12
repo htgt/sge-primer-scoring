@@ -22,25 +22,39 @@ class TestScoring(TestCase):
             '272 A 171950952 2 B 171951204 1 forward\n'
             'ipcress: 19:filter(unmasked) SMARCA4_exon24_3 '
             '278 A 11027755 0 B 11028013 0 forward\n'
+            'ipcress: 13:filter(unmasked) BRCA1_exon1_1 '
+            '207 A 32315485 0 B 32315669 0 forward\n'
             '-- completed ipcress analysis\n'
         )
-        self.fs.create_file('/test_input.txt', contents=file_contents)
+        self.fs.create_file('/ipcress.txt', contents=file_contents)
+        file_contents = (
+            'SMARCA4_exon24_1,Targeton_1\n'
+            'SMARCA4_exon24_3,Targeton_1\n'
+            'BRCA1_exon1_1,Targeton_2\n'
+        )
+        self.fs.create_file('/targetons.csv', contents=file_contents)
 
         index = pd.MultiIndex.from_tuples([
+            ('BRCA1_exon1_1', 'A'),
+            ('BRCA1_exon1_1', 'B'),
+            ('BRCA1_exon1_1', 'Total'),
             ('SMARCA4_exon24_1', 'A'),
             ('SMARCA4_exon24_1', 'B'),
             ('SMARCA4_exon24_1', 'Total'),
             ('SMARCA4_exon24_3', 'A'),
             ('SMARCA4_exon24_3', 'B'),
             ('SMARCA4_exon24_3', 'Total'),
-        ], names=['Primer pair', None])
+        ], names=['Primer pair', 'A/B/Total'])
         self.df = pd.DataFrame({
-            '0': [1, 1, 1, 1, 1, 1],
-            '1': [1, 0, 0, 0, 1, 0],
-            '2': [2, 1, 0, 1, 0, 0],
-            '3': [0, 0, 1, 0, 0, 1],
-            '4': [0, 0, 1, 0, 0, 0],
+            '0': [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            '1': [0, 0, 0, 1, 0, 0, 0, 1, 0],
+            '2': [0, 0, 0, 2, 1, 0, 1, 0, 0],
+            '3': [0, 0, 0, 0, 0, 1, 0, 0, 1],
+            '4': [0, 0, 0, 0, 0, 1, 0, 0, 0],
             'WGE format': [
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
                 {'0': 1, '1': 1, '2': 2, '3': 0, '4': 0},
                 {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
                 {'0': 1, '1': 0, '2': 0, '3': 1, '4': 1},
@@ -51,43 +65,59 @@ class TestScoring(TestCase):
         }, index=index)
 
         index = pd.MultiIndex.from_tuples([
-            ('SMARCA4_exon24_3', 'A'),
-            ('SMARCA4_exon24_3', 'B'),
-            ('SMARCA4_exon24_3', 'Total'),
-            ('SMARCA4_exon24_1', 'A'),
-            ('SMARCA4_exon24_1', 'B'),
-            ('SMARCA4_exon24_1', 'Total'),
-        ], names=['Primer pair', None])
-        self.score_df = pd.DataFrame({
-            '0': [1, 1, 1, 1, 1, 1],
-            '1': [0, 1, 0, 1, 0, 0],
-            '2': [1, 0, 0, 2, 1, 0],
-            '3': [0, 0, 1, 0, 0, 1],
-            '4': [0, 0, 0, 0, 0, 1],
+            ('Targeton_1', 'SMARCA4_exon24_1', 'A'),
+            ('Targeton_1', 'SMARCA4_exon24_1', 'B'),
+            ('Targeton_1', 'SMARCA4_exon24_1', 'Total'),
+            ('Targeton_1', 'SMARCA4_exon24_3', 'A'),
+            ('Targeton_1', 'SMARCA4_exon24_3', 'B'),
+            ('Targeton_1', 'SMARCA4_exon24_3', 'Total'),
+            ('Targeton_2', 'BRCA1_exon1_1', 'A'),
+            ('Targeton_2', 'BRCA1_exon1_1', 'B'),
+            ('Targeton_2', 'BRCA1_exon1_1', 'Total'),
+        ], names=['Targeton', 'Primer pair', 'A/B/Total'])
+        self.targeton_df = pd.DataFrame({
+            '0': [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            '1': [1, 0, 0, 0, 1, 0, 0, 0, 0],
+            '2': [2, 1, 0, 1, 0, 0, 0, 0, 0],
+            '3': [0, 0, 1, 0, 0, 1, 0, 0, 0],
+            '4': [0, 0, 1, 0, 0, 0, 0, 0, 0],
             'WGE format': [
-                {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
-                {'0': 1, '1': 1, '2': 0, '3': 0, '4': 0},
-                {'0': 1, '1': 0, '2': 0, '3': 1, '4': 0},
                 {'0': 1, '1': 1, '2': 2, '3': 0, '4': 0},
                 {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
                 {'0': 1, '1': 0, '2': 0, '3': 1, '4': 1},
-            ], 'Score': [np.nan, np.nan, 100000, np.nan, np.nan, 110000]
+                {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
+                {'0': 1, '1': 1, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 1, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+            ]
         }, index=index)
 
-    def test_mismatches_to_df_success(self):
+    def test_mismatches_to_df_no_targeton_csv_success(self):
         # arrange
         expected = self.df
 
         # act
-        actual = Scoring.mismatches_to_df('/test_input.txt', 2)
+        actual = Scoring.mismatches_to_df('/ipcress.txt', 2)
 
         # assert
         pd.testing.assert_frame_equal(actual, expected)
 
-    def test_mismatches_to_df_invalid_file_fail(self):
+    def test_mismatches_to_df_targeton_csv_success(self):
+        # arrange
+        expected = self.targeton_df
+
+        # act
+        actual = Scoring.mismatches_to_df('/ipcress.txt', 2, '/targetons.csv')
+
+        # assert
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_mismatches_to_df_invalid_ipcress_file_fail(self):
         # arrange
         self.fs.create_file('/invalid_input.txt', contents='invalid')
-        expected = '/invalid_input.txt: Invalid file format'
+        expected = '/invalid_input.txt: Invalid ipcress file'
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -102,16 +132,16 @@ class TestScoring(TestCase):
 
         # act
         with self.assertRaises(ScoringError) as cm:
-            Scoring.mismatches_to_df('/test_input.txt', 1)
+            Scoring.mismatches_to_df('/ipcress.txt', 1)
 
         # assert
         self.assertEqual(str(cm.exception), expected)
 
-    def test_mismatches_to_df_no_data_fail(self):
+    def test_mismatches_to_df_no_ipcress_data_fail(self):
         # arrange
         file_contents = '-- completed ipcress analysis\n'
         self.fs.create_file('/empty_input.txt', contents=file_contents)
-        expected = '/empty_input.txt: No data in file'
+        expected = '/empty_input.txt: No data in ipcress file'
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -120,16 +150,79 @@ class TestScoring(TestCase):
         # assert
         self.assertEqual(str(cm.exception), expected)
 
+    def test_mismatches_to_df_invalid_targeton_csv_fail(self):
+        # arrange
+        self.fs.create_file('/invalid.csv', contents='invalid')
+        expected = '/invalid.csv: Invalid targeton csv'
+
+        # act
+        with self.assertRaises(ScoringError) as cm:
+            Scoring.mismatches_to_df('/ipcress.txt', 2, '/invalid.csv')
+
+        # assert
+        self.assertEqual(str(cm.exception), expected)
+
+    def test_mismatches_to_df_conflicting_targeton_csv_entry_fail(self):
+        # arrange
+        file_contents = (
+            'SMARCA4_exon24_1,Targeton_1\n'
+            'SMARCA4_exon24_1,Targeton_2\n'
+        )
+        self.fs.create_file('/duplicates.csv', contents=file_contents)
+        expected = ('/duplicates.csv: Conflicting entries '
+                    'in targeton csv for SMARCA4_exon24_1')
+
+        # act
+        with self.assertRaises(ScoringError) as cm:
+            Scoring.mismatches_to_df('/ipcress.txt', 2, '/duplicates.csv')
+
+        # assert
+        self.assertEqual(str(cm.exception), expected)
+
     @patch('scoring.Scoring.mismatches_to_df')
     def check_score_df(self, mock_mismatches_to_df, check_like):
         # arrange
         mock_mismatches_to_df.return_value = self.df
-        scores = [np.nan, np.nan, 110000, np.nan, np.nan, 100000]
-        expected = self.score_df
+        apply_output = [
+            np.nan, np.nan, 0, np.nan, np.nan,
+            110000, np.nan, np.nan, 100000
+        ]
+        index = pd.MultiIndex.from_tuples([
+            ('BRCA1_exon1_1', 'A'),
+            ('BRCA1_exon1_1', 'B'),
+            ('BRCA1_exon1_1', 'Total'),
+            ('SMARCA4_exon24_3', 'A'),
+            ('SMARCA4_exon24_3', 'B'),
+            ('SMARCA4_exon24_3', 'Total'),
+            ('SMARCA4_exon24_1', 'A'),
+            ('SMARCA4_exon24_1', 'B'),
+            ('SMARCA4_exon24_1', 'Total'),
+        ], names=['Primer pair', 'A/B/Total'])
+        scores = [
+            np.nan, np.nan, 0, np.nan, np.nan,
+            100000, np.nan, np.nan, 110000
+        ]
+        expected = pd.DataFrame({
+            '0': [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            '1': [0, 0, 0, 0, 1, 0, 1, 0, 0],
+            '2': [0, 0, 0, 1, 0, 0, 2, 1, 0],
+            '3': [0, 0, 0, 0, 0, 1, 0, 0, 1],
+            '4': [0, 0, 0, 0, 0, 0, 0, 0, 1],
+            'WGE format': [
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
+                {'0': 1, '1': 1, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 1, '4': 0},
+                {'0': 1, '1': 1, '2': 2, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 1, '4': 1},
+            ], 'Score': scores}, index=index)
 
         # act
-        scoring = Scoring('/test_input.txt', 2)
-        with patch.object(pd.DataFrame, 'apply', return_value=scores):
+        scoring = Scoring('/ipcress.txt', 2)
+        with patch.object(pd.DataFrame, 'apply', return_value=apply_output):
             scoring.add_scores_to_df()
         actual = scoring.mismatch_df
 
@@ -142,12 +235,76 @@ class TestScoring(TestCase):
     def test_add_scores_to_df_orders_by_score(self):
         self.check_score_df(check_like=False)
 
-    def test_score_mismatches_returns_score_for_total_row(self):
+    @patch('scoring.Scoring.mismatches_to_df')
+    def test_add_scores_to_df_sorts_by_targeton(self, mock_mismatches_to_df):
+        # arrange
+        mock_mismatches_to_df.return_value = self.targeton_df
+        apply_output = [
+            np.nan, np.nan, 110000, np.nan,
+            np.nan, 100000, np.nan, np.nan, 0
+        ]
+        index = pd.MultiIndex.from_tuples([
+            ('Targeton_1', 'SMARCA4_exon24_3', 'A'),
+            ('Targeton_1', 'SMARCA4_exon24_3', 'B'),
+            ('Targeton_1', 'SMARCA4_exon24_3', 'Total'),
+            ('Targeton_1', 'SMARCA4_exon24_1', 'A'),
+            ('Targeton_1', 'SMARCA4_exon24_1', 'B'),
+            ('Targeton_1', 'SMARCA4_exon24_1', 'Total'),
+            ('Targeton_2', 'BRCA1_exon1_1', 'A'),
+            ('Targeton_2', 'BRCA1_exon1_1', 'B'),
+            ('Targeton_2', 'BRCA1_exon1_1', 'Total'),
+        ], names=['Targeton', 'Primer pair', 'A/B/Total'])
+        scores = [
+            np.nan, np.nan, 100000, np.nan,
+            np.nan, 110000, np.nan, np.nan, 0
+        ]
+        expected = pd.DataFrame({
+            '0': [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            '1': [0, 1, 0, 1, 0, 0, 0, 0, 0],
+            '2': [1, 0, 0, 2, 1, 0, 0, 0, 0],
+            '3': [0, 0, 1, 0, 0, 1, 0, 0, 0],
+            '4': [0, 0, 0, 0, 0, 1, 0, 0, 0],
+            'WGE format': [
+                {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
+                {'0': 1, '1': 1, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 1, '4': 0},
+                {'0': 1, '1': 1, '2': 2, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 1, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 1, '4': 1},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+                {'0': 1, '1': 0, '2': 0, '3': 0, '4': 0},
+            ], 'Score': scores}, index=index)
+
+        # act
+        scoring = Scoring('/ipcress.txt', 2, '/targetons.csv')
+        with patch.object(pd.DataFrame, 'apply', return_value=apply_output):
+            scoring.add_scores_to_df()
+        actual = scoring.mismatch_df
+
+        # assert
+        pd.testing.assert_frame_equal(actual, expected)
+
+    def test_score_mismatches_returns_score_for_total_row_no_targeton(self):
         # arrange
         mismatches = pd.Series({
             '0': 1, '1': 0, '2': 0, '3': 1, '4': 1,
             'WGE format': {'0': 1, '1': 0, '2': 0, '3': 1, '4': 1},
         }, name=('SMARCA4_exon24_1', 'Total'))
+        expected = 110000
+
+        # act
+        actual = Scoring.score_mismatches(mismatches)
+
+        # assert
+        self.assertEqual(actual, expected)
+
+    def test_score_mismatches_returns_score_for_total_row_with_targeton(self):
+        # arrange
+        mismatches = pd.Series({
+            '0': 1, '1': 0, '2': 0, '3': 1, '4': 1,
+            'WGE format': {'0': 1, '1': 0, '2': 0, '3': 1, '4': 1},
+        }, name=('Targeton_1', 'SMARCA4_exon24_1', 'Total'))
         expected = 110000
 
         # act
@@ -170,12 +327,27 @@ class TestScoring(TestCase):
         # assert
         np.testing.assert_equal(actual, expected)
 
-    def test_score_mismatches_no_on_target_hit_fail(self):
+    def test_score_mismatches_no_on_target_hit_fail_no_targeton(self):
         # arrange
         mismatches = pd.Series({
             '0': 0, '1': 0, '2': 0, '3': 1, '4': 1,
             'WGE format': {'0': 0, '1': 0, '2': 0, '3': 1, '4': 1},
         }, name=('SMARCA4_exon24_1', 'Total'))
+        expected = 'No on-target hit found for SMARCA4_exon24_1'
+
+        # act
+        with self.assertRaises(ScoringError) as cm:
+            Scoring.score_mismatches(mismatches)
+
+        # assert
+        self.assertEqual(str(cm.exception), expected)
+
+    def test_score_mismatches_no_on_target_hit_fail_with_targeton(self):
+        # arrange
+        mismatches = pd.Series({
+            '0': 0, '1': 0, '2': 0, '3': 1, '4': 1,
+            'WGE format': {'0': 0, '1': 0, '2': 0, '3': 1, '4': 1},
+        }, name=('Targeton_1', 'SMARCA4_exon24_1', 'Total'))
         expected = 'No on-target hit found for SMARCA4_exon24_1'
 
         # act
@@ -191,7 +363,7 @@ class TestScoring(TestCase):
         mock_mismatches_to_df.return_value = self.df
 
         # act
-        Scoring('/test_input.txt', 2).save_mismatches('output.tsv')
+        Scoring('/ipcress.txt', 2).save_mismatches('output.tsv')
 
         # assert
         self.assertTrue(path.exists('/output.tsv'))
@@ -202,7 +374,7 @@ class TestScoring(TestCase):
         mock_mismatches_to_df.return_value = self.df
 
         # act
-        Scoring('/test_input.txt', 2).save_mismatches('/test/output.tsv')
+        Scoring('/ipcress.txt', 2).save_mismatches('/test/output.tsv')
 
         # assert
         self.assertTrue(path.exists('/test/output.tsv'))
@@ -212,7 +384,13 @@ class TestScoring(TestCase):
         # arrange
         mock_mismatches_to_df.return_value = self.df
         expected = (
-            "Primer pair\t\t0\t1\t2\t3\t4\tWGE format\n"
+            "Primer pair\tA/B/Total\t0\t1\t2\t3\t4\tWGE format\n"
+            "BRCA1_exon1_1\tA\t1\t0\t0\t0\t0\t"
+            "{'0': 1, '1': 0, '2': 0, '3': 0, '4': 0}\n"
+            "BRCA1_exon1_1\tB\t1\t0\t0\t0\t0\t"
+            "{'0': 1, '1': 0, '2': 0, '3': 0, '4': 0}\n"
+            "BRCA1_exon1_1\tTotal\t1\t0\t0\t0\t0\t"
+            "{'0': 1, '1': 0, '2': 0, '3': 0, '4': 0}\n"
             "SMARCA4_exon24_1\tA\t1\t1\t2\t0\t0\t"
             "{'0': 1, '1': 1, '2': 2, '3': 0, '4': 0}\n"
             "SMARCA4_exon24_1\tB\t1\t0\t1\t0\t0\t"
@@ -228,7 +406,7 @@ class TestScoring(TestCase):
         )
 
         # act
-        Scoring('/test_input.txt', 2).save_mismatches('output.tsv')
+        Scoring('/ipcress.txt', 2).save_mismatches('output.tsv')
         with open('/output.tsv') as f:
             actual = f.read()
 

@@ -11,15 +11,17 @@ class ScoringError(Exception):
 
 
 class Scoring:
-    def __init__(self, ipcress_file, mismatches):
-        self._mismatch_df = self.mismatches_to_df(ipcress_file, mismatches)
+    def __init__(self, ipcress_file, mismatches, targeton_csv=None):
+        self._mismatch_df = self.mismatches_to_df(
+            ipcress_file, mismatches, targeton_csv)
+        self._csv = targeton_csv
 
     @staticmethod
-    def mismatches_to_df(ipcress_file, mismatches):
+    def mismatches_to_df(ipcress_file, mismatches, targeton_csv=None):
         mismatch_counts = defaultdict(
             lambda: {str(i): 0 for i in range(2 * mismatches + 1)})
 
-        with open(ipcress_file, newline='') as ipcress_fh:
+        with open(ipcress_file) as ipcress_fh:
             for line in ipcress_fh:
                 if line == '-- completed ipcress analysis\n':
                     break
@@ -36,8 +38,10 @@ class Scoring:
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
         if df.empty:
-            raise ScoringError(f'{ipcress_file}: No data in file')
-        df.index.set_names('Primer pair', level=0, inplace=True)
+            raise ScoringError(f'{ipcress_file}: No data in ipcress file')
+        df.index.set_names(['Primer pair', 'A/B/Total'], inplace=True)
+        if targeton_csv:
+            Scoring._add_targeton_column(df, targeton_csv)
         df.sort_index(inplace=True)  # order A, B, Total
         df['WGE format'] = df.apply(lambda row: row.to_dict(), axis=1)
         return df
@@ -53,8 +57,27 @@ class Scoring:
         )
         valid_line = re.fullmatch(regex, line)
         if not valid_line:
-            raise ScoringError(f'{ipcress_file}: Invalid file format')
+            raise ScoringError(f'{ipcress_file}: Invalid ipcress file')
         return valid_line.groups()
+
+    @staticmethod
+    def _add_targeton_column(df, targeton_csv):
+        targetons = defaultdict(str)
+        with open(targeton_csv) as fh:
+            for line in fh:
+                valid_line = re.fullmatch(r'(\S+),(\S+)\n', line)
+                if not valid_line:
+                    raise ScoringError(f'{targeton_csv}: Invalid targeton csv')
+                primer_pair, targeton = valid_line.groups()
+                if (primer_pair in targetons) and (
+                        targetons[primer_pair] != targeton):
+                    raise ScoringError(
+                        f'{targeton_csv}: Conflicting entries'
+                        f' in targeton csv for {primer_pair}')
+                targetons[primer_pair] = targeton
+        df['Targeton'] = df.apply(lambda row: targetons[row.name[0]], axis=1)
+        df.set_index('Targeton', append=True, inplace=True)
+        df.index = df.index.reorder_levels(['Targeton', 'Primer pair', 'A/B/Total'])
 
     @property
     def mismatch_df(self):
@@ -64,12 +87,16 @@ class Scoring:
         df = self.mismatch_df
         df['Score'] = df.apply(self.score_mismatches, axis=1)
         df['Sum'] = df.groupby('Primer pair')['Score'].transform('sum')
-        df.sort_values(['Sum', 'Primer pair'], inplace=True)
+        if self._csv:
+            df.sort_values(
+                ['Targeton', 'Sum', 'Primer pair', 'A/B/Total'], inplace=True)
+        else:
+            df.sort_values(['Sum', 'Primer pair', 'A/B/Total'], inplace=True)
         df.drop('Sum', axis=1, inplace=True)
 
     @staticmethod
     def score_mismatches(row):
-        if row.name[1] != 'Total':
+        if row.name[-1] != 'Total':
             return np.nan
         weights = {str(i): 10 ** (8 - i) for i in range(2, 9)}
         weights['0'] = 10 ** 10  # fail
@@ -81,7 +108,7 @@ class Scoring:
             if col == '0':
                 if val == 0:
                     raise ScoringError(
-                        f'No on-target hit found for {row.name[0]}')
+                        f'No on-target hit found for {row.name[-2]}')
                 val -= 1  # take away on-target hit
             score += val * weights[col]
         return score
