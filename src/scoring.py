@@ -77,7 +77,8 @@ class Scoring:
                 targetons[primer_pair] = targeton
         df['Targeton'] = df.apply(lambda row: targetons[row.name[0]], axis=1)
         df.set_index('Targeton', append=True, inplace=True)
-        df.index = df.index.reorder_levels(['Targeton', 'Primer pair', 'A/B/Total'])
+        df.index = df.index.reorder_levels(
+            ['Targeton', 'Primer pair', 'A/B/Total'])
 
     @property
     def mismatch_df(self):
