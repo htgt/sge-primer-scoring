@@ -65,7 +65,7 @@ class Scoring:
         targetons = defaultdict(str)
         with open(targeton_csv) as fh:
             for line in fh:
-                valid_line = re.fullmatch(r'(\S+),(\S+)\n', line)
+                valid_line = re.match(r'^(\S+),(\S+)$', line)
                 if not valid_line:
                     raise ScoringError(f'{targeton_csv}: Invalid targeton csv')
                 primer_pair, targeton = valid_line.groups()

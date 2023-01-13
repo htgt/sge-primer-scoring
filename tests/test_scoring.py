@@ -30,7 +30,7 @@ class TestScoring(TestCase):
         file_contents = (
             'SMARCA4_exon24_1,Targeton_1\n'
             'SMARCA4_exon24_3,Targeton_1\n'
-            'BRCA1_exon1_1,Targeton_2\n'
+            'BRCA1_exon1_1,Targeton_2'
         )
         self.fs.create_file('/targetons.csv', contents=file_contents)
 
