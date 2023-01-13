@@ -116,12 +116,12 @@ class TestScoring(TestCase):
 
     def test_mismatches_to_df_invalid_ipcress_file_fail(self):
         # arrange
-        self.fs.create_file('/invalid_input.txt', contents='invalid')
-        expected = "Invalid ipcress file: '/invalid_input.txt'"
+        self.fs.create_file('/invalid.txt', contents='invalid')
+        expected = "Invalid ipcress file: '/invalid.txt'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
-            Scoring.mismatches_to_df('/invalid_input.txt', 2)
+            Scoring.mismatches_to_df('/invalid.txt', 2)
 
         # assert
         self.assertEqual(str(cm.exception), expected)
@@ -140,12 +140,12 @@ class TestScoring(TestCase):
     def test_mismatches_to_df_no_ipcress_data_fail(self):
         # arrange
         file_contents = '-- completed ipcress analysis\n'
-        self.fs.create_file('/empty_input.txt', contents=file_contents)
-        expected = "No data in ipcress file: '/empty_input.txt'"
+        self.fs.create_file('/empty.txt', contents=file_contents)
+        expected = "No data in ipcress file: '/empty.txt'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
-            Scoring.mismatches_to_df('/empty_input.txt', 2)
+            Scoring.mismatches_to_df('/empty.txt', 2)
 
         # assert
         self.assertEqual(str(cm.exception), expected)
