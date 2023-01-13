@@ -26,7 +26,7 @@ class TestScorePrimers(TestCase):
     def test_non_empty_file_non_existing_file_fail(self):
         # arrange
         test_arg = 'non_existing_file.txt'
-        expected = 'File does not exist: non_existing_file.txt'
+        expected = "File does not exist: 'non_existing_file.txt'"
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:
@@ -38,7 +38,7 @@ class TestScorePrimers(TestCase):
     def test_non_empty_file_dir_fail(self):
         # arrange
         test_arg = 'existing_dir'
-        expected = 'File does not exist: existing_dir'
+        expected = "File does not exist: 'existing_dir'"
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:
@@ -50,7 +50,7 @@ class TestScorePrimers(TestCase):
     def test_non_empty_file_empty_file_fail(self):
         # arrange
         test_arg = 'empty_file.txt'
-        expected = 'File is empty: empty_file.txt'
+        expected = "File is empty: 'empty_file.txt'"
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:
@@ -96,7 +96,7 @@ class TestScorePrimers(TestCase):
     def test_new_file_path_new_dir_path_fail(self):
         # arrange
         test_arg = 'new_dir/'
-        expected = 'Directory provided rather than file path: new_dir/'
+        expected = "Directory provided rather than file path: 'new_dir/'"
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:
@@ -108,7 +108,7 @@ class TestScorePrimers(TestCase):
     def test_new_file_path_existing_dir_path_fail(self):
         # arrange
         test_arg = 'existing_dir'
-        expected = 'Directory provided rather than file path: existing_dir'
+        expected = "Directory provided rather than file path: 'existing_dir'"
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:
@@ -120,7 +120,7 @@ class TestScorePrimers(TestCase):
     def test_new_file_path_existing_file_path_fail(self):
         # arrange
         test_arg = 'empty_file.txt'
-        expected = 'File already exists: empty_file.txt'
+        expected = "File already exists: 'empty_file.txt'"
 
         # act
         with self.assertRaises(argparse.ArgumentTypeError) as cm:

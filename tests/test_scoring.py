@@ -117,7 +117,7 @@ class TestScoring(TestCase):
     def test_mismatches_to_df_invalid_ipcress_file_fail(self):
         # arrange
         self.fs.create_file('/invalid_input.txt', contents='invalid')
-        expected = '/invalid_input.txt: Invalid ipcress file'
+        expected = "Invalid ipcress file: '/invalid_input.txt'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -128,7 +128,7 @@ class TestScoring(TestCase):
 
     def test_mismatches_to_df_low_mismatch_fail(self):
         # arrange
-        expected = 'Mismatch number too low: 1'
+        expected = "Mismatch number too low for ipcress file: '1'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -141,7 +141,7 @@ class TestScoring(TestCase):
         # arrange
         file_contents = '-- completed ipcress analysis\n'
         self.fs.create_file('/empty_input.txt', contents=file_contents)
-        expected = '/empty_input.txt: No data in ipcress file'
+        expected = "No data in ipcress file: '/empty_input.txt'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -153,7 +153,7 @@ class TestScoring(TestCase):
     def test_mismatches_to_df_invalid_targeton_csv_fail(self):
         # arrange
         self.fs.create_file('/invalid.csv', contents='invalid')
-        expected = '/invalid.csv: Invalid targeton csv'
+        expected = "Invalid targeton csv: '/invalid.csv'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -169,8 +169,8 @@ class TestScoring(TestCase):
             'SMARCA4_exon24_1,Targeton_2\n'
         )
         self.fs.create_file('/duplicates.csv', contents=file_contents)
-        expected = ('/duplicates.csv: Conflicting entries '
-                    'in targeton csv for SMARCA4_exon24_1')
+        expected = ("Conflicting entries in targeton csv "
+                    "for SMARCA4_exon24_1: '/duplicates.csv'")
 
         # act
         with self.assertRaises(ScoringError) as cm:

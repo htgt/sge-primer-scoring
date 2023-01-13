@@ -34,11 +34,12 @@ class Scoring:
                     mismatch_counts[(exp_id, 'Total')][total_mismatches] += 1
                 except KeyError:
                     raise ScoringError(
-                        f'Mismatch number too low: {mismatches}')
+                        "Mismatch number too low for "
+                        f"ipcress file: '{mismatches}'")
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
         if df.empty:
-            raise ScoringError(f'{ipcress_file}: No data in ipcress file')
+            raise ScoringError(f"No data in ipcress file: '{ipcress_file}'")
         df.index.set_names(['Primer pair', 'A/B/Total'], inplace=True)
         if targeton_csv:
             Scoring._add_targeton_column(df, targeton_csv)
@@ -57,7 +58,7 @@ class Scoring:
         )
         valid_line = re.fullmatch(regex, line)
         if not valid_line:
-            raise ScoringError(f'{ipcress_file}: Invalid ipcress file')
+            raise ScoringError(f"Invalid ipcress file: '{ipcress_file}'")
         return valid_line.groups()
 
     @staticmethod
@@ -67,13 +68,14 @@ class Scoring:
             for line in fh:
                 valid_line = re.match(r'^(\S+),(\S+)$', line)
                 if not valid_line:
-                    raise ScoringError(f'{targeton_csv}: Invalid targeton csv')
+                    raise ScoringError(
+                        f"Invalid targeton csv: '{targeton_csv}'")
                 primer_pair, targeton = valid_line.groups()
                 if (primer_pair in targetons) and (
                         targetons[primer_pair] != targeton):
                     raise ScoringError(
-                        f'{targeton_csv}: Conflicting entries'
-                        f' in targeton csv for {primer_pair}')
+                        f"Conflicting entries in targeton csv "
+                        f"for {primer_pair}: '{targeton_csv}'")
                 targetons[primer_pair] = targeton
         df['Targeton'] = df.apply(lambda row: targetons[row.name[0]], axis=1)
         df.set_index('Targeton', append=True, inplace=True)

@@ -8,9 +8,9 @@ from src.scoring import Scoring
 
 def non_empty_file(arg):
     if not path.isfile(arg):
-        raise argparse.ArgumentTypeError(f'File does not exist: {arg}')
+        raise argparse.ArgumentTypeError(f"File does not exist: '{arg}'")
     if path.getsize(arg) == 0:
-        raise argparse.ArgumentTypeError(f'File is empty: {arg}')
+        raise argparse.ArgumentTypeError(f"File is empty: '{arg}'")
     return arg
 
 
@@ -23,9 +23,9 @@ def positive_int(arg):
 def new_file_path(arg):
     if arg.endswith('/') or path.isdir(arg):
         raise argparse.ArgumentTypeError(
-            f'Directory provided rather than file path: {arg}')
+            f"Directory provided rather than file path: '{arg}'")
     if path.isfile(arg):
-        raise argparse.ArgumentTypeError(f'File already exists: {arg}')
+        raise argparse.ArgumentTypeError(f"File already exists: '{arg}'")
     return arg
 
 
