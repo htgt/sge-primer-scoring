@@ -34,8 +34,8 @@ def parse_arguments():
         description=(
             'Tool to score primer pairs using output from Exonerate iPCRess'),
         epilog=(
-            './score_primers.py examples/example_input.txt 4 '
-            'examples/example_output.tsv'))
+            './score_primers.py examples/example_ipcress_file.txt'
+            ' 4 example_output.tsv'))
     parser.add_argument(
         'ipcress_file',
         help='File containing output from Exonerate iPCRess',
