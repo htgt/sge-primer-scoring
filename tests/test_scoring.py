@@ -169,8 +169,10 @@ class TestScoring(TestCase):
             'SMARCA4_exon24_1,Targeton_2\n'
         )
         self.fs.create_file('/duplicates.csv', contents=file_contents)
-        expected = ("Conflicting entries in targeton csv "
-                    "for SMARCA4_exon24_1: '/duplicates.csv'")
+        expected = (
+            "Conflicting entries in targeton csv "
+            "for SMARCA4_exon24_1: '/duplicates.csv'"
+        )
 
         # act
         with self.assertRaises(ScoringError) as cm:

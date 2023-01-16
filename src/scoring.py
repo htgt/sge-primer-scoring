@@ -13,20 +13,23 @@ class ScoringError(Exception):
 class Scoring:
     def __init__(self, ipcress_file, mismatches, targeton_csv=None):
         self._mismatch_df = self.mismatches_to_df(
-            ipcress_file, mismatches, targeton_csv)
+            ipcress_file, mismatches, targeton_csv
+        )
         self._csv = targeton_csv
 
     @staticmethod
     def mismatches_to_df(ipcress_file, mismatches, targeton_csv=None):
         mismatch_counts = defaultdict(
-            lambda: {str(i): 0 for i in range(2 * mismatches + 1)})
+            lambda: {str(i): 0 for i in range(2 * mismatches + 1)}
+        )
 
         with open(ipcress_file) as ipcress_fh:
             for line in ipcress_fh:
                 if line == '-- completed ipcress analysis\n':
                     break
                 exp_id, primer_5, mismatch_5, primer_3, mismatch_3 = (
-                    Scoring._parse_ipcress_line(line, ipcress_file))
+                    Scoring._parse_ipcress_line(line, ipcress_file)
+                )
                 total_mismatches = str(int(mismatch_5) + int(mismatch_3))
                 try:
                     mismatch_counts[(exp_id, primer_5)][mismatch_5] += 1
@@ -35,7 +38,8 @@ class Scoring:
                 except KeyError:
                     raise ScoringError(
                         "Mismatch number too low for "
-                        f"ipcress file: '{mismatches}'")
+                        f"ipcress file: '{mismatches}'"
+                    )
 
         df = pd.DataFrame.from_dict(mismatch_counts, orient='index')
         if df.empty:
@@ -69,18 +73,22 @@ class Scoring:
                 valid_line = re.match(r'^(\S+),(\S+)$', line)
                 if not valid_line:
                     raise ScoringError(
-                        f"Invalid targeton csv: '{targeton_csv}'")
+                        f"Invalid targeton csv: '{targeton_csv}'"
+                    )
                 primer_pair, targeton = valid_line.groups()
                 if (primer_pair in targetons) and (
-                        targetons[primer_pair] != targeton):
+                        targetons[primer_pair] != targeton
+                ):
                     raise ScoringError(
                         f"Conflicting entries in targeton csv "
-                        f"for {primer_pair}: '{targeton_csv}'")
+                        f"for {primer_pair}: '{targeton_csv}'"
+                    )
                 targetons[primer_pair] = targeton
         df['Targeton'] = df.apply(lambda row: targetons[row.name[0]], axis=1)
         df.set_index('Targeton', append=True, inplace=True)
         df.index = df.index.reorder_levels(
-            ['Targeton', 'Primer pair', 'A/B/Total'])
+            ['Targeton', 'Primer pair', 'A/B/Total']
+        )
 
     @property
     def mismatch_df(self):
@@ -92,7 +100,8 @@ class Scoring:
         df['Sum'] = df.groupby('Primer pair')['Score'].transform('sum')
         if self._csv:
             df.sort_values(
-                ['Targeton', 'Sum', 'Primer pair', 'A/B/Total'], inplace=True)
+                ['Targeton', 'Sum', 'Primer pair', 'A/B/Total'], inplace=True
+            )
         else:
             df.sort_values(['Sum', 'Primer pair', 'A/B/Total'], inplace=True)
         df.drop('Sum', axis=1, inplace=True)
@@ -111,7 +120,8 @@ class Scoring:
             if col == '0':
                 if val == 0:
                     raise ScoringError(
-                        f'No on-target hit found for {row.name[-2]}')
+                        f'No on-target hit found for {row.name[-2]}'
+                    )
                 val -= 1  # take away on-target hit
             score += val * weights[col]
         return score

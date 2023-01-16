@@ -23,7 +23,8 @@ def positive_int(arg):
 def new_file_path(arg):
     if arg.endswith('/') or path.isdir(arg):
         raise argparse.ArgumentTypeError(
-            f"Directory provided rather than file path: '{arg}'")
+            f"Directory provided rather than file path: '{arg}'"
+        )
     if path.isfile(arg):
         raise argparse.ArgumentTypeError(f"File already exists: '{arg}'")
     return arg
@@ -32,31 +33,40 @@ def new_file_path(arg):
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description=(
-            'Tool to score primer pairs using output from Exonerate iPCRess'),
+            'Tool to score primer pairs using output from Exonerate iPCRess'
+        ),
         epilog=(
             './score_primers.py examples/example_ipcress_file.txt'
-            ' 4 example_output.tsv'))
+            ' 4 example_output.tsv'
+        ))
     parser.add_argument(
         'ipcress_file',
         help='File containing output from Exonerate iPCRess',
-        type=non_empty_file)
+        type=non_empty_file
+    )
     parser.add_argument(
         'mismatch',
         help='Mismatch number used for Exonerate iPCRess',
-        type=positive_int)
+        type=positive_int
+    )
     parser.add_argument(
         'output_tsv',
         help='Path for output TSV file',
-        type=new_file_path)
+        type=new_file_path
+    )
     parser.add_argument(
         '--targeton_csv',
-        help=('CSV of primer pairs and corresponding targetons'
-              '- adds targeton column to output'),
-        type=non_empty_file)
+        help=(
+            'CSV of primer pairs and corresponding targetons'
+            '- adds targeton column to output'
+        ),
+        type=non_empty_file
+    )
     parser.add_argument(
         '--version',
         action='version',
-        version='%(prog)s 1.0.0')
+        version='%(prog)s 1.0.0'
+    )
     return parser.parse_args()
 
 
