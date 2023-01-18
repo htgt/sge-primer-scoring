@@ -1,3 +1,19 @@
+# Copyright (c) 2022, 2023 Genome Research Ltd.
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option) any
+# later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+
 from unittest.mock import patch
 from os import path
 
@@ -30,7 +46,7 @@ class TestScoring(TestCase):
         file_contents = (
             'SMARCA4_exon24_1,Targeton_1\n'
             'SMARCA4_exon24_3,Targeton_1\n'
-            'BRCA1_exon1_1,Targeton_2\n'
+            'BRCA1_exon1_1,Targeton_2'
         )
         self.fs.create_file('/targetons.csv', contents=file_contents)
 
@@ -116,19 +132,19 @@ class TestScoring(TestCase):
 
     def test_mismatches_to_df_invalid_ipcress_file_fail(self):
         # arrange
-        self.fs.create_file('/invalid_input.txt', contents='invalid')
-        expected = '/invalid_input.txt: Invalid ipcress file'
+        self.fs.create_file('/invalid.txt', contents='invalid')
+        expected = "Invalid ipcress file: '/invalid.txt'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
-            Scoring.mismatches_to_df('/invalid_input.txt', 2)
+            Scoring.mismatches_to_df('/invalid.txt', 2)
 
         # assert
         self.assertEqual(str(cm.exception), expected)
 
     def test_mismatches_to_df_low_mismatch_fail(self):
         # arrange
-        expected = 'Mismatch number too low: 1'
+        expected = "Mismatch number too low for ipcress file: '1'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -140,12 +156,12 @@ class TestScoring(TestCase):
     def test_mismatches_to_df_no_ipcress_data_fail(self):
         # arrange
         file_contents = '-- completed ipcress analysis\n'
-        self.fs.create_file('/empty_input.txt', contents=file_contents)
-        expected = '/empty_input.txt: No data in ipcress file'
+        self.fs.create_file('/empty.txt', contents=file_contents)
+        expected = "No data in ipcress file: '/empty.txt'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
-            Scoring.mismatches_to_df('/empty_input.txt', 2)
+            Scoring.mismatches_to_df('/empty.txt', 2)
 
         # assert
         self.assertEqual(str(cm.exception), expected)
@@ -153,7 +169,7 @@ class TestScoring(TestCase):
     def test_mismatches_to_df_invalid_targeton_csv_fail(self):
         # arrange
         self.fs.create_file('/invalid.csv', contents='invalid')
-        expected = '/invalid.csv: Invalid targeton csv'
+        expected = "Invalid targeton csv: '/invalid.csv'"
 
         # act
         with self.assertRaises(ScoringError) as cm:
@@ -169,8 +185,10 @@ class TestScoring(TestCase):
             'SMARCA4_exon24_1,Targeton_2\n'
         )
         self.fs.create_file('/duplicates.csv', contents=file_contents)
-        expected = ('/duplicates.csv: Conflicting entries '
-                    'in targeton csv for SMARCA4_exon24_1')
+        expected = (
+            "Conflicting entries in targeton csv "
+            "for SMARCA4_exon24_1: '/duplicates.csv'"
+        )
 
         # act
         with self.assertRaises(ScoringError) as cm:
