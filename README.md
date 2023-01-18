@@ -30,7 +30,7 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   --targeton_csv TARGETON_CSV
-                        CSV of primer pairs and corresponding targetons- adds
+                        CSV of primer pairs and corresponding targetons - adds
                         targeton column to output
   --version             show program's version number and exit
 ```

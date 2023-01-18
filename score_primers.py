@@ -74,7 +74,7 @@ def parse_arguments():
         '--targeton_csv',
         help=(
             'CSV of primer pairs and corresponding targetons'
-            '- adds targeton column to output'
+            ' - adds targeton column to output'
         ),
         type=non_empty_file
     )
