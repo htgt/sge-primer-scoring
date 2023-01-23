@@ -46,15 +46,7 @@ def new_file_path(arg):
     return arg
 
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(
-        description=(
-            'Tool to score primer pairs using output from Exonerate iPCRess'
-        ),
-        epilog=(
-            './score_primers.py examples/example_ipcress_file.txt'
-            ' 4 example_output.tsv'
-        ))
+def add_arguments(parser):
     parser.add_argument(
         'ipcress_file',
         help='File containing output from Exonerate iPCRess',
@@ -83,6 +75,18 @@ def parse_arguments():
         action='version',
         version='%(prog)s 1.0.0'
     )
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description=(
+            'Tool to score primer pairs using output from Exonerate iPCRess'
+        ),
+        epilog=(
+            './score_primers.py examples/example_ipcress_file.txt'
+            ' 4 example_output.tsv'
+        ))
+    add_arguments(parser)
     return parser.parse_args()
 
 
